@@ -1,0 +1,22 @@
+version: '3.4'
+services:
+  SmartHrms:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=SmartHrms
+      - MYSQL_USER=SmartHrms
+      - MYSQL_PASSWORD=SmartHrms
+  mysql:
+    image: mysql:5
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=SmartHrms
+      - MYSQL_DATABASE=SmartHrms
+      - MYSQL_USER=SmartHrms
+      - MYSQL_PASSWORD=SmartHrms
+    volumes:
+      - ./sql/SmartHrms.sql:/docker-entrypoint-initdb.d/SmartHrms.sql

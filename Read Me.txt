@@ -1,0 +1,22 @@
+To Validate selling quantity to be less or equal to stock quantity
+Added total Amount to tbl_receivings
+To Validate on Recieving Non Fuel - Control Vallue
+tbl_sales added total_amount
+tbl_centres - Fuel_centre very Important - Select 1 if its fuel Centre In Drops
+tbl_centres - Lubes_type - Very Important - Select 1 if Lube Centre
+
+Purchases - Non fuel
+
+Validation in Close Shift
+Edit in Close Shift
+Should never be deleted - Centre Type, Lube Type
+
+
+
+Lubes to have many centres
+
+tbl_petty_cash_expenses
+tbl_menu_sub
+tbl_centres
+
+ALTER TABLE `tbl_shifts` ADD COLUMN `date_closed` DATETIME NULL AFTER `reading`;
