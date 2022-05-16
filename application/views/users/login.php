@@ -26,18 +26,14 @@
             <div class="col-md-7">
                 <div class="signin-info">
                     <div class="logopanel">
-                        <h1>PetraNova FMS</h1>
+                        <h1>PetraNova</h1>
                     </div><!-- logopanel -->
                     <div class="mb20"></div>
-                    <h5><strong>Welcome to PetraNova FMS!</strong></h5>
-                    <ul>
-                        <li><i class="fa fa-arrow-circle-o-right mr5"></i> Fore Court Management</li>
-                        <li><i class="fa fa-arrow-circle-o-right mr5"></i> Shift Management</li>
+                    <h5><strong>Welcome to PetraNova!</strong></h5>
+                    <ul>                      
                         <li><i class="fa fa-arrow-circle-o-right mr5"></i> Inventory Management</li>
                         <li><i class="fa fa-arrow-circle-o-right mr5"></i> Customer Management</li>
-                        <li><i class="fa fa-arrow-circle-o-right mr5"></i> Stock Monitoring and Control</li>
-                        <li><i class="fa fa-arrow-circle-o-right mr5"></i> and much more...</li>
-                    </ul>
+                     </ul>
                     <div class="mb20"></div>
                 </div><!-- signin0-info -->
             </div><!-- col-sm-7 -->
