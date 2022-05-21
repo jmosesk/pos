@@ -618,14 +618,14 @@ class ShiftReports extends MY_Controller {
         }
     }
 
-        public function VatDetailed() {
+        public function vatDetailed() {
         if ($this->session->userdata('logged_in')) {
             if (count($this->input->post()) > 0) {
-                echo json_encode($this->ShiftReports_model->VatDetailed($this->input->post()));
+                echo json_encode($this->ShiftReports_model->vatDetailed($this->input->post()));
             } else {
                 $this->load->view('includes/header');
                 $this->load->view('includes/load_picker_filter');
-                $this->load->view('reports/VatDetailed');
+                $this->load->view('reports/vatDetailed');
                 $this->load->view('includes/swal');
                 $this->load->view('includes/footer');
             }

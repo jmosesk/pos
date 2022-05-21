@@ -623,8 +623,8 @@ class ShiftReports_model extends CI_Model {
             array_unshift($type, $fuel_array);
             $this->db->order_by('tbl_employees.emp_id');
             $this->db->select('tbl_employees.name,SUM(tbl_close_shift_lubes.sales_qty * tbl_measurement_type.value) as vol, SUM(tbl_close_shift_lubes.sales_qty *tbl_close_shift_lubes.price) as amnt, SUM(tbl_close_shift_lubes.sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) as netamnt, item_name, category_id, SUM((sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) * tbl_close_shift_lubes_vat.vat) as vat')
-                    ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_lubes', 'tbl_close_shift_lubes.centre_id = tbl_assigned_centres.centre_id', 'left')
+                    //->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    ->join('tbl_close_shift_lubes', 'tbl_close_shift_lubes.employee_id = tbl_employees.emp_id', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_close_shift_lubes.item_id', 'left')
                     ->join('tbl_products', 'tbl_products.item_id = tbl_items.item_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
@@ -634,8 +634,8 @@ class ShiftReports_model extends CI_Model {
 
             $this->db->order_by('tbl_employees.emp_id');
             $this->db->select('tbl_employees.name, SUM(sales_qty * tbl_measurement_type.value) as vol, SUM(sales_qty * price) as amnt, SUM(sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) as netamnt, item_name, category_id, SUM((sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) * tbl_close_shift_products_vat.vat) as vat');
-            $this->db->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_products', 'tbl_close_shift_products.centre_id = tbl_assigned_centres.centre_id', 'left')
+            // $this->db->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    $this->db->join('tbl_close_shift_products', 'tbl_close_shift_products.employee_id =  tbl_employees.emp_id', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_close_shift_products.item_id', 'left')
                     ->join('tbl_products', 'tbl_products.item_id = tbl_items.item_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
@@ -653,8 +653,8 @@ class ShiftReports_model extends CI_Model {
                     ->where_in('tbl_close_shift_job_card.shift_id', $shift_data_array)->group_by('tbl_employees.emp_id');
             $j_cards = $this->db->get('tbl_employees')->result_array();
 
-            $this->db->order_by('tbl_assigned_centres.employee_id');
-            $this->db->select('tbl_assigned_centres.employee_id,tbl_employees.name,tbl_items.item_id, item_name, 0 as category_id, 
+            $this->db->order_by('tbl_employees.emp_id');
+            $this->db->select('tbl_employees.emp_id,tbl_employees.name,tbl_items.item_id, item_name, 0 as category_id, 
 						      CASE reading
 						      WHEN 4 THEN SUM(sales_manual_meter * tbl_measurement_type.value )
 						      WHEN 3 THEN SUM(tbl_close_shift_fuels.sales_elec_meter * tbl_measurement_type.value)
@@ -683,8 +683,8 @@ class ShiftReports_model extends CI_Model {
 						      WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
 						      ELSE GREATEST(SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
 					  		END as vat')
-                    ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.centre_id = tbl_assigned_centres.centre_id', 'left')
+                  //  ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.employee_id = tbl_employees.emp_id', 'left')
                     ->join('tbl_pumps', 'tbl_pumps.pump_id = tbl_close_shift_fuels.pump_id', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_pumps.fuel_product_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
@@ -1589,7 +1589,7 @@ class ShiftReports_model extends CI_Model {
 
 
     //VAT FULL REPORT 
-    function VatDetailed($post = NULL) {
+    function vatDetailed($post = NULL) {
         $shift_data_array = array();
         $shift_array = $this->per_shift_range($post, 'asc');
         foreach ($shift_array as $shift) {
@@ -1616,6 +1616,17 @@ class ShiftReports_model extends CI_Model {
                     ->join('tbl_close_shift_job_card_vat', 'tbl_close_shift_job_card_vat.id = tbl_close_shift_job_card.close_shift_id', 'left')->where('quantity >', 0)
                     ->where_in('tbl_close_shift_job_card.shift_id', $shift_data_array)->group_by('vat');
             $jcs = $this->db->get('tbl_close_shift_job_card')->result_array();
+
+//-------------------------------------------------------
+
+ $this->db->select('SUM(tbl_petty_cash_expense_items.amount) as amount, tbl_petty_cash_items.name')
+                        ->join('tbl_petty_cash_expenses', 'tbl_petty_cash_expenses.id = tbl_petty_cash_expense_items.expense_id')
+                        ->join('tbl_petty_cash_items', 'tbl_petty_cash_items.id = tbl_petty_cash_expense_items.item_id')
+                        ->where('approved', 1)->where_in('tbl_petty_cash_expenses.shift_id', $shift_data_array)
+                        ->group_by('tbl_petty_cash_expense_items.item_id');
+        $data['expensess'] = $this->db->get('tbl_petty_cash_expense_items')->result_array();
+//-------------------------------------------------------
+       // var_dump($expensess);exit();
             $this->db->select('vat,
                         CASE reading
                                   WHEN 4 THEN SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat))
@@ -1669,6 +1680,8 @@ class ShiftReports_model extends CI_Model {
             }
             $data['sales'] = $final_array;
         }
+
+       // var_dump($data);exit();
         return array('data' => $data);
     }
 
