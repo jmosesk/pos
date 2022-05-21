@@ -779,6 +779,9 @@ class Product_model extends CI_Model {
     function get_list_measure() {
         return $this->db->get('tbl_measurement_type');
     }
+    function fetch_all($table) {
+        return $this->db->get($table);
+    }
 
     function get_list_measurement() {
         return $this->db->get('tbl_measurement_type');
@@ -1090,6 +1093,12 @@ class Product_model extends CI_Model {
 
     function saveSupplierPayment($admin) {
         $this->db->insert('tbl_supplier_payments', $admin);
+        return $this->db->insert_id();
+    }
+
+
+    function saveVatPayment($post) {
+        $this->db->insert('tbl_vat_payments', $post);
         return $this->db->insert_id();
     }
 

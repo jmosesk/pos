@@ -433,6 +433,17 @@ class Payment extends MY_Controller {
         } else {
             redirect('user/login', 'refresh');
         }
+    }  
+
+     public function addVatPayment() {
+//transaction_type - Customer_payment - 1, 
+        if ($this->session->userdata('logged_in')) {
+             $post = $this->input->post();
+           
+            $this->Product_model->saveVatPayment($post);
+        } else {
+            redirect('user/login', 'refresh');
+        }
     }
 
     public function addCustomerPayment() {
@@ -773,18 +784,18 @@ class Payment extends MY_Controller {
 
 
 
-    public function VatPayment() {
+    public function vatPayment() {
         if ($this->session->userdata('logged_in')) {
             $this->load->model('User_model', '', TRUE);
             $this->load->model('Ledger_model', '', TRUE);
-            $data['payments'] = $this->Product_model->getlist_vendorPayments();
+            $data['payments'] = $this->Product_model->fetch_all('tbl_vat_payments');
             $data['suppliers'] = $this->Company_model->get_list_suppliers();
             $data['custCards'] = $this->Company_model->get_list_custcards_pay();
             $data['mpesas'] = $this->Company_model->get_customer_by_category(3);
             $data['methods'] = $this->Product_model->getListTable('name', 'tbl_payment_type');
             $data['accounts'] = $this->Ledger_model->fetch_bank_accounts_items();
             $this->load->view('includes/header');
-            $this->load->view('payment/VatPayment', $data);
+            $this->load->view('payment/vatPayment', $data);
             $this->load->view('includes/footer');
         } else {
             redirect('user/login', 'refresh');

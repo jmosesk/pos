@@ -623,12 +623,14 @@ class ShiftReports_model extends CI_Model {
             array_unshift($type, $fuel_array);
             $this->db->order_by('tbl_employees.emp_id');
             $this->db->select('tbl_employees.name,SUM(tbl_close_shift_lubes.sales_qty * tbl_measurement_type.value) as vol, SUM(tbl_close_shift_lubes.sales_qty *tbl_close_shift_lubes.price) as amnt, SUM(tbl_close_shift_lubes.sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) as netamnt, item_name, category_id, SUM((sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) * tbl_close_shift_lubes_vat.vat) as vat')
-                    //->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_lubes', 'tbl_close_shift_lubes.employee_id = tbl_employees.emp_id', 'left')
+                    ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    ->join('tbl_close_shift_lubes', 'tbl_close_shift_lubes.centre_id = tbl_assigned_centres.centre_id AND tbl_close_shift_lubes.shift_id = tbl_assigned_centres.shift_id', 'left')
+                    
                     ->join('tbl_items', 'tbl_items.item_id = tbl_close_shift_lubes.item_id', 'left')
                     ->join('tbl_products', 'tbl_products.item_id = tbl_items.item_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
                     ->join('tbl_close_shift_lubes_vat', 'tbl_close_shift_lubes_vat.id = tbl_close_shift_lubes.close_shift_id', 'left')->where('sales_qty >', 0)
+                    ->where_in('tbl_assigned_centres.shift_id', $shift_data_array)
                     ->where_in('tbl_close_shift_lubes.shift_id', $shift_data_array)->group_by('tbl_employees.emp_id');
             $lubes = $this->db->get('tbl_employees')->result_array();
 

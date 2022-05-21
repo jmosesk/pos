@@ -78,7 +78,7 @@
                     var bv = $form.data('bootstrapValidator');
                     // Use Ajax to submit form data
                     $.ajax({
-                        url: '<?php echo base_url(); ?>payment/addVendorPayment',
+                        url: '<?php echo base_url(); ?>payment/addVatPayment',
                         type: 'post',
                         data: $('#addForm :input'),
                         dataType: 'html',
@@ -231,7 +231,7 @@
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Reference : </label>
                                 <div class="col-lg-8">
-                                    <input type="text" class="form-control" name="cheque" id="cheque" placeholder="Bank Ref Number/Cheque Number" />
+                                    <input type="text" class="form-control" name="ref_no" id="ref_no" placeholder="Bank Ref Number/Cheque Number" />
                                 </div> 
                             </div>
                             <div class="form-group">
@@ -294,7 +294,7 @@
                                 <th>Datetime</th>
                                 <th>Payment Reason</th>
                                 <th>Payment Method</th>
-                                <th>Cheque Number</th>
+                                <th>Ref No.</th>
                                 <th>Remarks</th>
                                 <th>Amount</th>
                                 <th>Employee</th>
@@ -310,9 +310,9 @@
                                     <tr>
                                         <td><?php echo $row_count; ?></td>
                                         <td><?php echo $payment->datetime; ?></td>
-                                        <td><?php echo $payment->payment_reason; ?></td>
+                                        <td><?php echo $payment->reason; ?></td>
                                         <td><?php echo $payment->payment_type; ?></td>
-                                        <td><?php echo $payment->ref_number; ?></td>
+                                        <td><?php echo $payment->ref_no; ?></td>
                                         <td><?php echo $payment->remarks; ?></td>
                                         <td><?php echo $payment->amount; ?></td>
                                         <td><?php echo $payment->employee; ?></td>
