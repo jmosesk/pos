@@ -515,7 +515,9 @@ class ShiftReports_model extends CI_Model {
             $this->db->where('tbl_shifts.shift_name_id', $post['shift']);
         }
         if (isset($post['range'])) {
+
             $date_array = explode(" - ", $post['range']);
+          
             $post_range = "DATE(tbl_shifts.shift_date) >= '" . date("Y-m-d", strtotime($date_array[0])) . "' AND DATE(tbl_shifts.shift_date) <= '" . date("Y-m-d", strtotime($date_array[1])) . "'";
             $this->db->where($post_range);
         }
@@ -659,47 +661,46 @@ class ShiftReports_model extends CI_Model {
             $this->db->order_by('tbl_assigned_centres.employee_id');
             $this->db->select('tbl_assigned_centres.employee_id,tbl_employees.name,SUM(tbl_close_shift_job_card.quantity * tbl_measurement_type.value) as vol, SUM(quantity * tbl_close_shift_job_card.unit_price) as amnt,SUM(quantity  * (tbl_close_shift_job_card.unit_price / (1+tbl_close_shift_job_card_vat.vat))) as netamnt, item_name, SUM((quantity * (tbl_close_shift_job_card.unit_price / (1+tbl_close_shift_job_card_vat.vat))) * tbl_close_shift_job_card_vat.vat) as vat, "jc" as category_id');
             $this->db->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_job_card', 'tbl_close_shift_job_card.centre_id = tbl_assigned_centres.centre_id', 'left')
+                    ->join('tbl_close_shift_job_card', 'tbl_close_shift_job_card.centre_id = tbl_assigned_centres.centre_id AND tbl_close_shift_job_card.shift_id = tbl_assigned_centres.shift_id', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_close_shift_job_card.item_id', 'left')
                     ->join('tbl_close_shift_job_card_vat', 'tbl_close_shift_job_card_vat.id = tbl_close_shift_job_card.close_shift_id', 'left')->where('quantity >', 0)
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
                     ->where_in('tbl_close_shift_job_card.shift_id', $shift_data_array)->group_by('tbl_employees.emp_id');
             $j_cards = $this->db->get('tbl_employees')->result_array();
 
-            $this->db->order_by('tbl_employees.emp_id');
-            $this->db->select('tbl_employees.emp_id,tbl_employees.name,tbl_items.item_id, item_name, 0 as category_id, 
-						      CASE reading
-						      WHEN 4 THEN SUM(sales_manual_meter * tbl_measurement_type.value )
-						      WHEN 3 THEN SUM(tbl_close_shift_fuels.sales_elec_meter * tbl_measurement_type.value)
-						      WHEN 2 THEN SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price * tbl_measurement_type.value)
-						      WHEN 5 THEN GREATEST(SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price) * tbl_measurement_type.value)
-						      ELSE GREATEST(SUM(sales_manual_meter), SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price) * tbl_measurement_type.value)
-					  		END as vol,
-					  		CASE reading
-						      WHEN 4 THEN SUM(sales_manual_cash)
-						      WHEN 3 THEN SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price)
-						      WHEN 2 THEN SUM(sales_elec_cash)
-						      WHEN 5 THEN GREATEST(SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price), SUM(sales_elec_cash))
-						      ELSE GREATEST(SUM(sales_manual_cash), SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price), SUM(sales_elec_cash))
-					  		END as amnt,
+         $this->db->order_by('tbl_assigned_centres.employee_id');
+            $this->db->select('tbl_assigned_centres.employee_id,tbl_employees.name,tbl_items.item_id, item_name, 0 as category_id, 
+                              CASE reading
+                              WHEN 4 THEN SUM(sales_manual_meter * tbl_measurement_type.value )
+                              WHEN 3 THEN SUM(tbl_close_shift_fuels.sales_elec_meter * tbl_measurement_type.value)
+                              WHEN 2 THEN SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price * tbl_measurement_type.value)
+                              WHEN 5 THEN GREATEST(SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price) * tbl_measurement_type.value)
+                              ELSE GREATEST(SUM(sales_manual_meter), SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price) * tbl_measurement_type.value)
+                            END as vol,
+                            CASE reading
+                              WHEN 4 THEN SUM(sales_manual_cash)
+                              WHEN 3 THEN SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price)
+                              WHEN 2 THEN SUM(sales_elec_cash)
+                              WHEN 5 THEN GREATEST(SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price), SUM(sales_elec_cash))
+                              ELSE GREATEST(SUM(sales_manual_cash), SUM(sales_elec_meter * tbl_close_shift_fuels.unit_price), SUM(sales_elec_cash))
+                            END as amnt,
                                                         CASE reading
-						      WHEN 4 THEN SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat))
-						      WHEN 3 THEN SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)))
-						      WHEN 2 THEN SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat))
-						      WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
-						      ELSE GREATEST(SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
-					  		END as netamnt,
-					  		CASE reading
-						      WHEN 4 THEN SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
-						      WHEN 3 THEN SUM((sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))) * tbl_close_shift_fuels_vat.vat)
-						      WHEN 2 THEN SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
-						      WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
-						      ELSE GREATEST(SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
-					  		END as vat')
+                              WHEN 4 THEN SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat))
+                              WHEN 3 THEN SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)))
+                              WHEN 2 THEN SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat))
+                              WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
+                              ELSE GREATEST(SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
+                            END as netamnt,
+                            CASE reading
+                              WHEN 4 THEN SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 3 THEN SUM((sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 2 THEN SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
+                              ELSE GREATEST(SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
+                            END as vat')
                     ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    //->join('tbl_close_shift_products', 'tbl_close_shift_products.centre_id =  tbl_assigned_centres.centre_id AND tbl_close_shift_products.shift_id = tbl_assigned_centres.shift_id', 'right')
-                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.centre_id = tbl_assigned_centres.centre_id AND tbl_close_shift_fuels.shift_id = tbl_assigned_centres.shift_id', 'right')
-                    ->join('tbl_pumps', 'tbl_pumps.pump_id = tbl_close_shift_fuels.pump_id', 'left')
+                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.centre_id = tbl_assigned_centres.centre_id AND tbl_close_shift_fuels.shift_id = tbl_assigned_centres.shift_id ', 'left')
+                    ->join('tbl_pumps', 'tbl_pumps.pump_id = tbl_close_shift_fuels.pump_id AND tbl_pumps.centre_id = tbl_close_shift_fuels.centre_id  ', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_pumps.fuel_product_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
                     ->join('tbl_shifts', 'tbl_shifts.shift_id = tbl_close_shift_fuels.shift_id', 'left')
@@ -1698,6 +1699,120 @@ class ShiftReports_model extends CI_Model {
 
        // var_dump($data);exit();
         return array('data' => $data);
+    }
+
+function vatDetailedForPayment($post = NULL) {
+
+        $shift_data_array = array();
+        $shift_array = $this->per_shift_range($post, 'asc');
+        foreach ($shift_array as $shift) {
+            $shift_data_array[] = $shift['shift_id'];
+        }
+        
+        $data = array('purchases' => array(), 'sales' => array());
+        if (count($shift_array) > 0) {
+            $this->db->order_by('tbl_recieving_items.tax', 'desc')->order_by('tbl_recieving_items_fuel.tax_percentage', 'desc')
+                    ->select('SUM(tbl_recieving_items.total_price) as net_amount, SUM(tbl_recieving_items.tax_percentage) as tax_amount, tbl_recieving_items.tax as tax_perc, SUM(tbl_recieving_items_fuel.net_amount) as fuel_net_amount, SUM(tbl_recieving_items_fuel.vat_amount) as fuel_tax_amount, tbl_recieving_items_fuel.tax_percentage as fuel_tax_perc,SUM(tbl_receiving_fuel_meta.license_fees) as fee')
+                    ->join('tbl_recieving_items_fuel', 'tbl_recieving_items_fuel.recieving_id = tbl_receivings.receiving_id', 'left')
+                    ->join('tbl_recieving_items', 'tbl_recieving_items.recieving_id = tbl_receivings.receiving_id', 'left')
+                    ->join('tbl_receiving_fuel_meta', 'tbl_receiving_fuel_meta.receiving_id = tbl_receivings.receiving_id', 'left')
+                    ->where_in('tbl_receivings.shift_id', $shift_data_array)->group_by('tbl_recieving_items.tax, tbl_recieving_items_fuel.tax_percentage');
+            $data['purchases'] = $this->db->get('tbl_receivings')->result_array();
+            $this->db->select('SUM(sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) as net_amount, SUM((sales_qty * (price / (1+tbl_close_shift_lubes_vat.vat))) * tbl_close_shift_lubes_vat.vat) as tax_amount, vat')
+                    ->join('tbl_close_shift_lubes_vat', 'tbl_close_shift_lubes_vat.id = tbl_close_shift_lubes.close_shift_id', 'left')->where('sales_qty >', 0)
+                    ->where_in('tbl_close_shift_lubes.shift_id', $shift_data_array)->group_by('vat');
+            $lubes = $this->db->get('tbl_close_shift_lubes')->result_array();
+            $this->db->select('SUM(sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) as net_amount, SUM((sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) * tbl_close_shift_products_vat.vat) as tax_amount, vat')
+                    ->join('tbl_close_shift_products_vat', 'tbl_close_shift_products_vat.id = tbl_close_shift_products.close_shift_id', 'left')->where('sales_qty >', 0)
+                    ->where_in('tbl_close_shift_products.shift_id', $shift_data_array)->group_by('vat');
+            $others = $this->db->get('tbl_close_shift_products')->result_array();
+            $this->db->select('SUM(quantity * (unit_price / (1+tbl_close_shift_job_card_vat.vat))) as net_amount, SUM((quantity * (unit_price / (1+tbl_close_shift_job_card_vat.vat))) * tbl_close_shift_job_card_vat.vat) as tax_amount, vat')
+                    ->join('tbl_close_shift_job_card_vat', 'tbl_close_shift_job_card_vat.id = tbl_close_shift_job_card.close_shift_id', 'left')->where('quantity >', 0)
+                    ->where_in('tbl_close_shift_job_card.shift_id', $shift_data_array)->group_by('vat');
+            $jcs = $this->db->get('tbl_close_shift_job_card')->result_array();
+
+//-------------------------------------------------------
+
+ $this->db->select('SUM(tbl_petty_cash_expense_items.amount) as amount, tbl_petty_cash_items.name')
+                        ->join('tbl_petty_cash_expenses', 'tbl_petty_cash_expenses.id = tbl_petty_cash_expense_items.expense_id')
+                        ->join('tbl_petty_cash_items', 'tbl_petty_cash_items.id = tbl_petty_cash_expense_items.item_id')
+                        ->where('approved', 1)->where_in('tbl_petty_cash_expenses.shift_id', $shift_data_array)
+                        ->group_by('tbl_petty_cash_expense_items.item_id');
+        $data['expensess'] = $this->db->get('tbl_petty_cash_expense_items')->result_array();
+//-------------------------------------------------------
+       // var_dump($expensess);exit();
+            $this->db->select('vat,
+                        CASE reading
+                                  WHEN 4 THEN SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat))
+                              WHEN 3 THEN SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)))
+                              WHEN 2 THEN SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat))
+                              WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
+                              ELSE GREATEST(SUM(sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))), SUM(sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)))
+                            END as net_amount,
+                        CASE reading
+                          WHEN 4 THEN SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 3 THEN SUM((sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat))) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 2 THEN SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat)
+                              WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
+                              ELSE GREATEST(SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
+                            END tax_amount')
+                    ->join('tbl_shifts', 'tbl_shifts.shift_id = tbl_close_shift_fuels.shift_id', 'left')
+                    ->join('tbl_close_shift_fuels_vat', 'tbl_close_shift_fuels_vat.id = tbl_close_shift_fuels.close_shift_fuel_id', 'left')
+                    ->where_in('tbl_close_shift_fuels.shift_id', $shift_data_array)
+                    ->group_by('vat');
+            $fuels = $this->db->get('tbl_close_shift_fuels')->result_array();
+            $taxes = $this->db->order_by('value', 'desc')->get('tbl_tax_type')->result_array();
+            $final_array = array();
+            foreach ($taxes as $tax) {
+                $value = $vat = 0;
+                foreach ($fuels as $fuel) {
+                    if ($fuel['vat'] == $tax['value']) {
+                        $value += $fuel['net_amount'];
+                        $vat += $fuel['tax_amount'];
+                    }
+                }
+                foreach ($lubes as $lube) {
+                    if ($lube['vat'] == $tax['value']) {
+                        $value += $lube['net_amount'];
+                        $vat += $lube['tax_amount'];
+                    }
+                }
+                foreach ($others as $other) {
+                    if ($other['vat'] == $tax['value']) {
+                        $value += $other['net_amount'];
+                        $vat += $other['tax_amount'];
+                    }
+                }
+                foreach ($jcs as $js) {
+                    if ($js['vat'] == $tax['value']) {
+                        $value += $js['net_amount'];
+                        $vat += $js['tax_amount'];
+                    }
+                }
+                $save_array = array('name' => $tax['name'], 'value' => $value, 'tax' => $vat);
+                $final_array[] = $save_array;
+            }
+            $data['sales'] = $final_array;
+        }
+
+        
+        $salestax= $purchasestax = $expensesstax =0;
+        foreach($data['sales'] as $sale1){
+            $salestax=$salestax+$sale1['tax'];
+        }
+
+       foreach($data['purchases'] as $purchase1){
+            $purchasestax=$purchasestax+$purchase1['tax_amount']+$purchase1['fuel_tax_amount'];
+        }
+
+        
+       foreach($data['expensess'] as $expensess1){
+            $expensesstax=$expensesstax+$expensess1['amount'];
+        }
+
+        
+      $res=$salestax- ($purchasestax+$expensesstax);
+        return $res;
     }
 
 

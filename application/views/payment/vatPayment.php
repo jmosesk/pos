@@ -125,9 +125,16 @@
                                <div class="form-group">
                                 <label class="col-lg-3 control-label">Total Tax Due OR Claimable : </label>
                                 <div class="col-lg-8">
-                                    <input type="text" value="-290,659.88" class="form-control" name="" id="" readonly />
+                                    <input type="text" value="<?=number_format($totalTaxdue,2)?>" class="form-control" name="" id="" readonly />
                                 </div><!-- col-sm-6 -->
                             </div>
+                            <?php if($totalTaxdue > 0) {?>
+
+                                <?php }else{?>
+
+                    you can not pay
+
+                <?php }?>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Reason for Payment : </label>
                                 <div class="col-lg-8">
@@ -264,6 +271,7 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Add VAT Payment</button>
                     </div>
+
                 </form>
             </div>
         </div>

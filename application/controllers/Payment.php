@@ -786,14 +786,23 @@ class Payment extends MY_Controller {
 
     public function vatPayment() {
         if ($this->session->userdata('logged_in')) {
+
+            $theDate    =  date("Y/m/d");
+           
+            $newdate= date('d M, Y', strtotime($theDate));
+            
+            $val=['range'=>"01/01/1970 - $newdate"];
             $this->load->model('User_model', '', TRUE);
             $this->load->model('Ledger_model', '', TRUE);
+           $this->load->model('ShiftReports_model', '', TRUE);
             $data['payments'] = $this->Product_model->fetch_all('tbl_vat_payments');
             $data['suppliers'] = $this->Company_model->get_list_suppliers();
             $data['custCards'] = $this->Company_model->get_list_custcards_pay();
             $data['mpesas'] = $this->Company_model->get_customer_by_category(3);
             $data['methods'] = $this->Product_model->getListTable('name', 'tbl_payment_type');
             $data['accounts'] = $this->Ledger_model->fetch_bank_accounts_items();
+            $data['totalTaxdue'] = $this->ShiftReports_model->vatDetailedForPayment($val);
+
             $this->load->view('includes/header');
             $this->load->view('payment/vatPayment', $data);
             $this->load->view('includes/footer');
