@@ -636,8 +636,8 @@ class ShiftReports_model extends CI_Model {
 
             $this->db->order_by('tbl_employees.emp_id');
             $this->db->select('tbl_employees.name, SUM(sales_qty * tbl_measurement_type.value) as vol, SUM(sales_qty * price) as amnt, SUM(sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) as netamnt, item_name, category_id, SUM((sales_qty * (price / (1+tbl_close_shift_products_vat.vat))) * tbl_close_shift_products_vat.vat) as vat');
-            // $this->db->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    $this->db->join('tbl_close_shift_products', 'tbl_close_shift_products.employee_id =  tbl_employees.emp_id', 'left')
+                $this->db->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    ->join('tbl_close_shift_products', 'tbl_close_shift_products.centre_id =  tbl_assigned_centres.centre_id AND tbl_close_shift_products.shift_id = tbl_assigned_centres.shift_id', 'right')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_close_shift_products.item_id', 'left')
                     ->join('tbl_products', 'tbl_products.item_id = tbl_items.item_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
@@ -685,8 +685,9 @@ class ShiftReports_model extends CI_Model {
 						      WHEN 5 THEN GREATEST(SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
 						      ELSE GREATEST(SUM((sales_manual_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM(sales_elec_meter * (tbl_close_shift_fuels.unit_price/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat), SUM((sales_elec_cash/(1+tbl_close_shift_fuels_vat.vat)) * tbl_close_shift_fuels_vat.vat))
 					  		END as vat')
-                  //  ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
-                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.employee_id = tbl_employees.emp_id', 'left')
+                    ->join('tbl_assigned_centres', 'tbl_assigned_centres.employee_id = tbl_employees.emp_id ', 'left')
+                    //->join('tbl_close_shift_products', 'tbl_close_shift_products.centre_id =  tbl_assigned_centres.centre_id AND tbl_close_shift_products.shift_id = tbl_assigned_centres.shift_id', 'right')
+                    ->join('tbl_close_shift_fuels', 'tbl_close_shift_fuels.centre_id = tbl_assigned_centres.centre_id AND tbl_close_shift_fuels.shift_id = tbl_assigned_centres.shift_id', 'right')
                     ->join('tbl_pumps', 'tbl_pumps.pump_id = tbl_close_shift_fuels.pump_id', 'left')
                     ->join('tbl_items', 'tbl_items.item_id = tbl_pumps.fuel_product_id', 'left')
                     ->join('tbl_measurement_type', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id', 'left')
