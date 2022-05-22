@@ -128,13 +128,6 @@
                                     <input type="text" value="<?=number_format($totalTaxdue,2)?>" class="form-control" name="" id="" readonly />
                                 </div><!-- col-sm-6 -->
                             </div>
-                            <?php if($totalTaxdue > 0) {?>
-
-                                <?php }else{?>
-
-                    you can not pay
-
-                <?php }?>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Reason for Payment : </label>
                                 <div class="col-lg-8">
@@ -297,7 +290,13 @@
                 <p class="mb20">Create a VAT Payment or Keep track of existing VAT Payments</p>
             </div>
             <div class="col-md-6 text-right">
+                <?php if($totalTaxdue > 0){?>
                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addUser"><span class="fa fa-plus"></span> Create VAT Payment</button>
+            <?php } else{?>
+
+           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#cantPay"><span class="fa fa-arrow-right"></span>Total Tax Due / Claimable: <?=number_format($totalTaxdue,2)?></button>
+
+            <?php } ?>
             </div>
             <div class="col-md-12">
                 <div class="table-responsive">
