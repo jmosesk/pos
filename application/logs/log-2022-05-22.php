@@ -53,3 +53,20 @@ ERROR - 2022-05-22 10:48:02 --> 404 Page Not Found: ShiftReports/images
 ERROR - 2022-05-22 10:48:13 --> 404 Page Not Found: ShiftReports/images
 ERROR - 2022-05-22 10:51:46 --> 404 Page Not Found: ShiftReports/images
 ERROR - 2022-05-22 10:53:26 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:05:48 --> Unable to connect to the database
+ERROR - 2022-05-22 10:06:42 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:08:21 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:08:38 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:08:51 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:10:24 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:17:16 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:27:00 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:27:17 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:28:07 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:29:41 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:34:39 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:38:16 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:46:49 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:48:08 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:54:42 --> 404 Page Not Found: ShiftReports/images
+ERROR - 2022-05-22 10:55:05 --> 404 Page Not Found: ShiftReports/images

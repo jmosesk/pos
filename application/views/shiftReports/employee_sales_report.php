@@ -56,7 +56,7 @@
             type: 'POST',
             data: {range: range, shift: $("#shift").val()},
             success: function (response) {
-                //console.log(response);
+               // console.log(response);
                 $('#salesTable').empty();
                 var results = JSON.parse(response);
                 var categories = results.type;
@@ -94,6 +94,15 @@
                                 sum_netamnt += parseFloat(others.netamnt);
                                 sum_vat_amnt += parseFloat(others.vat);
                                 trHTML += draw_fuel_center(others);
+                            }
+                        });
+                        $.each(data_response.accessoriess, function (j, accessories) {
+                            if (item.type_id == accessories.category_id) {
+                                sum_vol += parseFloat(accessories.vol);
+                                sum_amnt += parseFloat(accessories.amnt);
+                                sum_netamnt += parseFloat(accessories.netamnt);
+                                sum_vat_amnt += parseFloat(accessories.vat);
+                                trHTML += draw_fuel_center(accessories);
                             }
                         });
                         $.each(data_response.fuel, function (j, fuel) {
