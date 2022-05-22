@@ -122,6 +122,12 @@
                 <form id="addForm" method="post" class="form-horizontal" enctype="multipart/form-data">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                               <div class="form-group">
+                                <label class="col-lg-3 control-label">Total Tax Due OR Claimable : </label>
+                                <div class="col-lg-8">
+                                    <input type="text" value="-290,659.88" class="form-control" name="" id="" readonly />
+                                </div><!-- col-sm-6 -->
+                            </div>
                             <div class="form-group">
                                 <label class="col-lg-3 control-label">Reason for Payment : </label>
                                 <div class="col-lg-8">
