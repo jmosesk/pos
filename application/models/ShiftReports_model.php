@@ -1642,6 +1642,16 @@ class ShiftReports_model extends CI_Model {
                         ->group_by('tbl_petty_cash_expense_items.item_id');
         $data['expensess'] = $this->db->get('tbl_petty_cash_expense_items')->result_array();
 //-------------------------------------------------------
+
+
+  $this->db->select('tbl_customers_transactions.shift_id, SUM(withholding_tax) as w_tax')
+                    ->join('tbl_customers_transactions', 'tbl_customers_transactions.customer_transaction_id = tbl_customer_payments.customers_transactions_id', 'left')
+                    ->where_in('tbl_customers_transactions.shift_id', $shift_data_array);
+            $data['withholding'] = $this->db->get('tbl_customer_payments')->result_array();
+
+                 // var_dump($data['withholding']);exit();
+
+//-------------------------------------------------------
        // var_dump($expensess);exit();
             $this->db->select('vat,
                         CASE reading
