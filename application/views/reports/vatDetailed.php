@@ -48,14 +48,14 @@
               type: 'POST',
               data: { range: range},
               success: function (response) {
-                //console.log(response);
+                console.log(response);
                 $('#salesTable').empty();
                 var results = JSON.parse(response);
                 var data = results.data;
                 //console.log(data);
                 var trHTML = '';
                 trHTML += open_main_table();
-                var sum_purchases = sum_expenses= sum_sales = purchases_vat = sales_vat = 0;
+                var sum_purchases = sum_expenses = final_tax_due = sum_withholding = sum_sales = purchases_vat = sales_vat = 0;
                 trHTML += open_sales_data("Sales");
                   $.each(data.sales, function (j, sale) {
                     var name = "Taxable Rate (" + sale.name + ")";
@@ -80,6 +80,22 @@
                   });
                 trHTML += draw_total_sales_data("Total Expenses", sum_expenses, sum_expenses);
 //------------------------------------------------------------------
+
+//--------------------------------------------------------------
+                trHTML += open_sales_data("Withholding");
+                  $.each(data.withholding, function (j, withhold) {
+                    var name = (withhold.shift_id);
+                    var value = (withhold.w_tax);
+                    //var rate = (sale.name);
+                   // var vat = (parseFloat(sale.tax).toFixed(2));
+                    sum_withholding = sum_amnt(sum_withholding, value); 
+                   // sales_vat = sum_amnt(sales_vat, vat);
+                   // trHTML += draw_sales_data(name, value, 0 , value);
+                  });
+                //trHTML += draw_total_sales_data("Total Expenses", sum_expenses, sum_expenses);
+//------------------------------------------------------------------
+ 
+
                 trHTML += open_sales_data("Purchase");
                   $.each(data.purchases, function (j, reciepts) {
                       var total_amnt_val = sum_amnt(reciepts.net_amount, reciepts.fuel_net_amount);
@@ -95,7 +111,11 @@
                   });
                 trHTML += draw_total_sales_data("Total Taxable Purchase", sum_purchases, purchases_vat);
                 var pxps= sum_amnt(purchases_vat, sum_expenses);
+                var plus_adj = sum_amnt(pxps, sum_withholding);
+
                 var tax_due = sales_vat - pxps;
+                var final_tax_due = sales_vat - plus_adj;
+               //  alert(final_tax_due);
                 trHTML += draw_others(parseFloat(tax_due).toFixed(2));
                 trHTML += close_main_table();
                 $('#salesTable').append(trHTML);
@@ -135,7 +155,7 @@
             draw_panel += '<tr><td>Tax Due OR Claimable</td><td></td><td></td><td class="text-center">'+format_amount_decimals(tax_due)+'</td>';
             draw_panel += '<tr><td><b>Adjustment</b></td><td></td><td></td><td></td>';
             draw_panel += '<tr><td>Less Credit Balance</td><td></td><td></td><td class="text-center">0</td>';
-            draw_panel += '<tr><td>Withholding Tax</td><td></td><td></td><td class="text-center">'+format_amount_decimals(tax_due)+'</td>';
+            draw_panel += '<tr><td>Withholding Tax</td><td></td><td></td><td class="text-center">'+format_amount_decimals(sum_withholding)+'</td>';
             draw_panel += '<tr><td>Net Tax Payable</td><td></td><td></td><td class="text-center">'+format_amount_decimals(tax_due)+'</td>';
             draw_panel += '<tr><td>Add Refund Claims</td><td></td><td></td><td class="text-center">0</td>';
             draw_panel += '<tr><td>Final Tax Payable/Credit Carried Forward</td><td></td><td></td><td class="text-center">'+format_amount_decimals(tax_due)+'</td>';
