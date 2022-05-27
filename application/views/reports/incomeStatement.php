@@ -56,7 +56,7 @@
                 var trHTML = '';
                 trHTML += open_main_table();
                 var sum_purchases = sum_expenses = final_tax_due = sum_withholding = sum_sales = purchases_vat = sales_vat = 0;
-                trHTML += open_sales_data("Sales");
+                trHTML += open_sales_data("REVENUES");
                   $.each(data.sales, function (j, sale) {
                     var name = "Taxable Rate (" + sale.name + ")";
                     var value = (sale.value);
@@ -66,37 +66,10 @@
                     sales_vat = sum_amnt(sales_vat, vat);
                     trHTML += draw_sales_data(name, value, rate, vat);
                   });
-                trHTML += draw_total_sales_data("Total Taxable Sales", sum_sales, sales_vat);
-//--------------------------------------------------------------
-                trHTML += open_sales_data("Expenses");
-                  $.each(data.expensess, function (j, expense) {
-                    var name = (expense.name);
-                    var value = (expense.amount);
-                    //var rate = (sale.name);
-                   // var vat = (parseFloat(sale.tax).toFixed(2));
-                    sum_expenses = sum_amnt(sum_expenses, value); 
-                   // sales_vat = sum_amnt(sales_vat, vat);
-                    trHTML += draw_sales_data(name, value, 0 , value);
-                  });
-                trHTML += draw_total_sales_data("Total Expenses", sum_expenses, sum_expenses);
-//------------------------------------------------------------------
+                trHTML += draw_total_sales_data("TOTAL REVENUES", sum_sales, sales_vat);
 
-//--------------------------------------------------------------
-                trHTML += open_sales_data("Withholding");
-                  $.each(data.withholding, function (j, withhold) {
-                    var name = (withhold.shift_id);
-                    var value = (withhold.w_tax);
-                    //var rate = (sale.name);
-                   // var vat = (parseFloat(sale.tax).toFixed(2));
-                    sum_withholding = sum_amnt(sum_withholding, value); 
-                   // sales_vat = sum_amnt(sales_vat, vat);
-                   // trHTML += draw_sales_data(name, value, 0 , value);
-                  });
-                //trHTML += draw_total_sales_data("Total Expenses", sum_expenses, sum_expenses);
-//------------------------------------------------------------------
- 
 
-                trHTML += open_sales_data("Purchase");
+                trHTML += open_sales_data("COST OF GOODS SOLD");
                   $.each(data.purchases, function (j, reciepts) {
                       var total_amnt_val = sum_amnt(reciepts.net_amount, reciepts.fuel_net_amount);
                       var tax_amount_val = sum_amnt(reciepts.tax_amount, reciepts.fuel_tax_amount);
@@ -109,14 +82,55 @@
                       purchases_vat = sum_amnt(purchases_vat, tax_amount_val);
                       trHTML += draw_sales_data(name, value, rate, vat);
                   });
-                trHTML += draw_total_sales_data("Total Taxable Purchase", sum_purchases, purchases_vat);
+                trHTML += draw_total_sales_data("TOTAL COST OF GOODS SOLD", sum_purchases, purchases_vat);
+
+//--------------------------------------------------------------
+  trHTML += open_sales_data("GROSS PROFIT (LOSS)");
+
+
+
+//--------------------------------------------------------------
+                trHTML += open_sales_data("OPERATING EXPENSES");
+                  $.each(data.expensess, function (j, expense) {
+                    var name = (expense.name);
+                    var value = (expense.amount);
+                    //var rate = (sale.name);
+                   // var vat = (parseFloat(sale.tax).toFixed(2));
+                    sum_expenses = sum_amnt(sum_expenses, value); 
+                   // sales_vat = sum_amnt(sales_vat, vat);
+                    trHTML += draw_sales_data(name, value, 0 , value);
+                  });
+                trHTML += draw_total_sales_data("TOTAL OPERATING EXPENSES", sum_expenses, sum_expenses);
+//------------------------------------------------------------------
+//--------------------------------------------------------------
+  trHTML += open_sales_data("GROSS PROFIT (LOSS)");
+
+//------------------------------------------------------------------
+
+  trHTML += open_sales_data("INTEREST (INCOME), EXPENSE & TAXES");
+                  $.each(data.expensess, function (j, expense) {
+                    var name = (expense.name);
+                    var value = (expense.amount);
+                    //var rate = (sale.name);
+                   // var vat = (parseFloat(sale.tax).toFixed(2));
+                    sum_expenses = sum_amnt(sum_expenses, value); 
+                   // sales_vat = sum_amnt(sales_vat, vat);
+                    trHTML += draw_sales_data(name, value, 0 , value);
+                  });
+                trHTML += draw_total_sales_data("TOTAL INTEREST (INCOME), EXPENSE & TAXES", sum_expenses, sum_expenses);
+//------------------------------------------------------------------
+//--------------------------------------------------------------
+  trHTML += open_sales_data("NET INCOME (LOSS)");
+
+//------------------------------------------------------------------
+
                 var pxps= sum_amnt(purchases_vat, sum_expenses);
                 var plus_adj = sum_amnt(pxps, sum_withholding);
 
                 var tax_due = sales_vat - pxps;
                 var final_tax_due = sales_vat - plus_adj;
                //  alert(final_tax_due);
-                trHTML += draw_others(parseFloat(tax_due).toFixed(2));
+                //trHTML += draw_others(parseFloat(tax_due).toFixed(2));
                 trHTML += close_main_table();
                 $('#salesTable').append(trHTML);
                 swal_close();
@@ -135,18 +149,18 @@
       }
 
       function open_sales_data(type) {
-        var draw_panel = '<tr><td width=""><b>'+type+' Transactions</b></td><td width="" class="text-center"><b>VALUE (EXCL. VAT) KSHS</b></td><td width="" class="text-center"><b>RATE</b></td><td width="" class="text-center"><b>VAT CHARGED KSHS</b></td></tr>';
+        var draw_panel = '<tr><td width=""><b>'+type+'</b></td><td></td><td></td><td width="" class="text-center"><b>AMOUNT(KSHS)</b></td></tr>';
         return draw_panel;
       }
 
       function draw_sales_data(name, value, rate, vat) {
-        var draw_panel = '<tr><td>'+name+'</td><td class="text-center">'+format_amount_decimals(parseFloat(value).toFixed(2))+'</td><td class="text-center">'+rate+'</td>';
-          draw_panel += '<td class="text-center">'+format_amount_decimals(parseFloat(vat).toFixed(2))+'</td></tr>';
+        var draw_panel = '<tr><td>'+name+'</td><td></td><td></td><td class="text-center">'+format_amount_decimals(parseFloat(value).toFixed(2))+'</td>';
+          draw_panel += '</tr>';
         return draw_panel;
       }
 
       function draw_total_sales_data(name, value, vat) {
-        var draw_panel = '<tr><td>'+name+'</td><td class="text-center"><b>'+format_amount_decimals(parseFloat(value).toFixed(2))+'</b></td><td></td><td class="text-center"><b>'+format_amount_decimals(parseFloat(vat).toFixed(2))+'</b></td></tr>';
+        var draw_panel = '<tr><td>'+name+'</td><td></td><td></td><td class="text-center"><b>'+format_amount_decimals(parseFloat(value).toFixed(2))+'</b></td></tr>';
         return draw_panel;
       }
 

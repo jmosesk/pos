@@ -218,6 +218,8 @@ class ShiftReports extends MY_Controller {
 
     public function salesSummaryReport($shift_id = NULL) {
         if ($this->session->userdata('logged_in')) {
+
+             $this->ShiftReports_model->save_rpt_sales();
             if (count($this->input->post()) > 0) {
                 echo json_encode($this->ShiftReports_model->salesSummaryReport($this->input->post()));
             } else {
