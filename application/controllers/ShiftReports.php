@@ -219,9 +219,12 @@ class ShiftReports extends MY_Controller {
     public function salesSummaryReport($shift_id = NULL) {
         if ($this->session->userdata('logged_in')) {
 
-             $this->ShiftReports_model->save_rpt_sales();
+            // $this->ShiftReports_model->save_rpt_sales();
             if (count($this->input->post()) > 0) {
-                echo json_encode($this->ShiftReports_model->salesSummaryReport($this->input->post()));
+               $data =  $this->ShiftReports_model->getSalesReport($this->input->post(),'tbl_items.item_id');
+             //  var_dump($data);exit();
+               $data1 =  $this->ShiftReports_model->formatSalesData($data);
+                echo json_encode($data1);
             } else {
                 $this->load->view('includes/header');
                 $this->load->view('includes/load_picker_filter');

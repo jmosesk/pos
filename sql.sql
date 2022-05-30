@@ -71,3 +71,12 @@ COMMIT;
 
 
 ALTER TABLE `tbl_close_shift_lubes` ADD `rpt_sales_mapping` TINYINT NOT NULL DEFAULT '0' AFTER `status`;
+
+
+ALTER TABLE `tbl_close_shift_products` ADD `rpt_sales_mapping` TINYINT NOT NULL DEFAULT '0' AFTER `status`;
+
+ALTER TABLE `tbl_close_shift_job_card` ADD `rpt_sales_mapping` TINYINT NOT NULL DEFAULT '0' AFTER `user_id`;
+
+ALTER TABLE `tbl_close_shift_fuels` ADD `rpt_sales_mapping` TINYINT NOT NULL DEFAULT '0' AFTER `unit_price`;
+
+ALTER TABLE `tbl_shifts`   ADD PRIMARY KEY (`shift_id`);

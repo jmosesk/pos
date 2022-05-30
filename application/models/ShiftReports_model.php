@@ -607,6 +607,32 @@ class ShiftReports_model extends CI_Model {
         }
         return $this->db->get()->result_array();
     }
+ function fetchDataO($table, $field, $value, $field_2 = null, $value_2 = null, $order = null) {
+
+        if (($field == '' || $value == '') && ($order == null)) {
+
+            $this->db->select('*')
+                    ->from($table);
+        } elseif (($field == '' || $value == '' ) && $order <> '') {
+
+            $this->db->select('*')
+                    ->from($table)
+                    ->order_by($order, "asc");
+        } elseif (($field_2 != null) && ($value_2 != null)) {
+            //echo "Test";
+            //die($value_2);
+
+            $this->db->select('*')
+                    ->from($table)
+                    ->where($field, $value)
+                    ->where($field_2, $value_2);
+        } else {
+            $this->db->select('*')
+                    ->from($table)
+                    ->where($field, $value);
+        }
+        return $this->db->get();
+    }
  function fetchForrptsales($table, $field, $value, $field_2 = null, $value_2 = null, $order = null) {
 $this->db->select('*')
                     ->from($table)
@@ -694,8 +720,182 @@ if($recs){
 
     }
     //---------------------------------------------------------------------------------------------------
-    //Other products
+    //tbl_close_shift_products
+    //-------------------------------------------------------------------
+    unset($salesdata); unset($toupdate); unset($val); unset($val1); unset($val2); unset($val3);unset($recs);   
+
+$recs = $this->fetchForrptsales('tbl_close_shift_products','rpt_sales_mapping', 0,'sales_qty', 0);
+
+if($recs){
+
+//insert to rpt_sales table
+        foreach($recs as $r): 
+     $val = $this->fetchSingleRow('tbl_products', 'item_id',$r->item_id);
+     $val1 = $this->fetchSingleRowTwoFields('tbl_assigned_centres', 'centre_id', $r->centre_id,'shift_id', $r->shift_id); //$val2 = $this->getVat($r);
+       $val2 = $this->fetchSingleRowJoin('tbl_close_shift_products_vat','tbl_close_shift_products', 'tbl_close_shift_products.close_shift_id=tbl_close_shift_products_vat.id','close_shift_id',$r->close_shift_id)  ;
+   
+       $val3 = $this->fetchSingleRowJoin('tbl_measurement_type','tbl_items', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id','item_id',$r->item_id)  ;
+   // var_dump($val3);exit(); 
+   
+            $salesdata[] = array(
+             'close_shift_id'=>$r->close_shift_id,
+             'shift_id'=>$r->shift_id,
+             'category_id'=>200,
+             'item_id'=>$r->item_id,
+             'employee_id'=>$val1->employee_id,
+             'centre_id'=>$r->centre_id,
+             'sales_qty'=>$r->sales_qty,
+             'price'=>$r->price,
+             'amount'=>$r->price*$r->sales_qty,
+             'vat_rate'=>$val2[0]->vat,
+             'measurement_value'=>$val3[0]->value
+            
+            );
+
+            $toupdate[] = ['rpt_sales_mapping'=>1,'close_shift_id'=>$r->close_shift_id];
+        endforeach;
+         
+
+    $this->db->trans_start();       
+        $this->db->insert_batch('rpt_sales', $salesdata);
+        $this->db->update_batch('tbl_close_shift_products', $toupdate,'close_shift_id');    
+    $this->db->trans_complete();
+
+    }
+
+
+  //---------------------------------------------------------------------------------------------------
+    //tbl_close_shift_job_card
+    //-------------------------------------------------------------------
+        unset($salesdata); unset($toupdate); unset($val); unset($val1); unset($val2); unset($val3);unset($recs);   
+
+$recs = $this->fetchForrptsales('tbl_close_shift_job_card','rpt_sales_mapping', 0,'quantity', 0);
+
+if($recs){
+
+//insert to rpt_sales table
+        foreach($recs as $r): 
+     $val = $this->fetchSingleRow('tbl_products', 'item_id',$r->item_id);
+     $val1 = $this->fetchSingleRowTwoFields('tbl_assigned_centres', 'centre_id', $r->centre_id,'shift_id', $r->shift_id); //$val2 = $this->getVat($r);
+       $val2 = $this->fetchSingleRowJoin('tbl_close_shift_job_card_vat','tbl_close_shift_job_card', 'tbl_close_shift_job_card.close_shift_id=tbl_close_shift_job_card_vat.id','close_shift_id',$r->close_shift_id)  ;
+   
+       $val3 = $this->fetchSingleRowJoin('tbl_measurement_type','tbl_items', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id','item_id',$r->item_id)  ;
+    //var_dump($val3);exit(); 
+   
+            $salesdata[] = array(
+             'close_shift_id'=>$r->close_shift_id,
+             'shift_id'=>$r->shift_id,
+             'category_id'=>200,
+             'item_id'=>$r->item_id,
+             'employee_id'=>$val1->employee_id,
+             'centre_id'=>$r->centre_id,
+             'sales_qty'=>$r->quantity,
+             'price'=>$r->unit_price,
+             'amount'=>$r->unit_price*$r->quantity,
+             'vat_rate'=>$val2[0]->vat,
+             'measurement_value'=>$val3[0]->value
+            
+            );
+
+            $toupdate[] = ['rpt_sales_mapping'=>1,'close_shift_id'=>$r->close_shift_id];
+        endforeach;
+         
+
+    $this->db->trans_start();       
+        $this->db->insert_batch('rpt_sales', $salesdata);
+        $this->db->update_batch('tbl_close_shift_job_card', $toupdate,'close_shift_id');    
+    $this->db->trans_complete();
+
+    }
+
+
+
+  //---------------------------------------------------------------------------------------------------
+    //tbl_close_shift_fuels
+    //-------------------------------------------------------------------
+        unset($salesdata); unset($toupdate); unset($val); unset($val1); unset($val2); unset($val3);unset($recs);   
+
+
+ $result = $this->fetchDataO('tbl_close_shift_fuels','rpt_sales_mapping',0);
+ 
+$recs = $result ->result();
+
+if($recs){
+
+//insert to rpt_sales table
+        foreach($recs as $r): 
+     $val = $this->fetchSingleRow('tbl_pumps', 'pump_id',$r->pump_id);
+     $val1 = $this->fetchSingleRowTwoFields('tbl_assigned_centres', 'centre_id', $r->centre_id,'shift_id', $r->shift_id);
+       $val2 = $this->fetchSingleRowJoin('tbl_close_shift_fuels','tbl_close_shift_fuels_vat', 'tbl_close_shift_fuels_vat.id = tbl_close_shift_fuels.close_shift_fuel_id','close_shift_fuel_id',$r->close_shift_fuel_id);
+   
+       $val3 = $this->fetchSingleRowJoin('tbl_measurement_type','tbl_items', 'tbl_measurement_type.type_id = tbl_items.measurement_unit_id','item_id',$val->fuel_product_id)  ;
+       $sales_qty = $this->getsales_qty($r);
+ 
+   
+            $salesdata[] = array(
+             'close_shift_id'=>$r->close_shift_fuel_id,
+             'shift_id'=>$r->shift_id,
+             'category_id'=>100,
+             'item_id'=>$val->fuel_product_id,
+             'employee_id'=>$val1->employee_id,
+             'centre_id'=>$r->centre_id,
+             'sales_qty'=>$sales_qty,
+             'price'=>$r->unit_price,
+             'amount'=>$r->unit_price*$sales_qty,
+             'vat_rate'=>$val2[0]->vat,
+             'measurement_value'=>$val3[0]->value
+            
+            );
+
+            $toupdate[] = ['rpt_sales_mapping'=>1,'close_shift_fuel_id'=>$r->close_shift_fuel_id];
+        endforeach;
+
+    $this->db->trans_start();       
+        $this->db->insert_batch('rpt_sales', $salesdata);
+        $this->db->update_batch('tbl_close_shift_fuels', $toupdate,'close_shift_fuel_id');    
+    $this->db->trans_complete();
+
+    }
+
+
 return;
+}
+
+
+function getsales_qty($r) {
+    $val = $this->fetchSingleRow('tbl_shifts', 'shift_id',$r->shift_id);
+
+   if ($val->reading==4) {
+        $qty = $r->sales_manual_meter;
+    } else {
+          if ($val->reading==3) {
+                $qty = $r->sales_elec_meter;
+            }else{
+                 if ($val->reading==2) {
+                  $qty = $r->sales_elec_cash;
+                  }else{
+                        if ($val->reading==1) {
+                          $qty = max([$r->sales_manual_meter, $r->sales_elec_meter, $r->sales_elec_cash/$r->unit_price]);
+                          }else{
+                             if ($val->reading==5) {
+                              $qty = max([$r->sales_elec_meter, $r->sales_elec_cash/$r->unit_price]);
+                              }
+
+                          }
+                  }
+            }
+    }
+      // var_dump([$r->sales_manual_meter, $r->sales_elec_meter, $r->sales_elec_cash/$r->unit_price]);exit();
+    
+return $qty;
+ // WHEN 4 THEN SUM(sales_manual_meter)
+ //                              WHEN 3 THEN SUM(tbl_close_shift_fuels.sales_elec_meter)
+ //                              WHEN 2 THEN SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price)
+ //                              WHEN 5 THEN GREATEST(SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price))
+ //                              ELSE GREATEST(SUM(sales_manual_meter), SUM(tbl_close_shift_fuels.sales_elec_meter), SUM(tbl_close_shift_fuels.sales_elec_cash / tbl_close_shift_fuels.unit_price))
+ //         return $insert_id;
+
+
 }
 
 function _insert($table, $set) {
@@ -921,6 +1121,69 @@ function _insert($table, $set) {
         }
         return array('type' => $type, 'data' => array('lubes' => $lubes, 'others' => $others, 'fuel' => $fuel_centres, 'credits' => $credit_sales_arr, 'jc' => $j_cards));
     }
+
+    function getSalesReport($post = NULL,$groupBy = NULL) {
+        $shift_data_array = array();
+        $shift_array = $this->per_shift_range($post);
+        $reading_method_array = array();
+        foreach ($shift_array as $shift) {
+            $shift_data_array[] = $shift['shift_id'];
+        }
+        $data = array();
+        $this->db->select('tbl_products_category_type.type_id, name')->where('deleted', 0);
+        $type = $this->db->get('tbl_products_category_type')->result_array();
+        if (count($shift_data_array) > 0) {
+            $jc_array = array('type_id' => "jc", 'name' => "Job Cards");
+            array_unshift($type, $jc_array);
+            $fuel_array = array('type_id' => 0, 'name' => "White Products");
+            array_unshift($type, $fuel_array);
+            $this->db->order_by('tbl_items.item_name');
+            $this->db->select('SUM(sales_qty) as qty,SUM(sales_qty * measurement_value) as vol, SUM(sales_qty * price) as amnt, SUM(sales_qty * (price / (1+vat_rate))) as netamnt,  item_name, category_id, SUM((sales_qty * (price / (1+vat_rate))) * vat_rate) as vat')
+                   ->join('tbl_items', 'tbl_items.item_id = rpt_sales.item_id', 'left')                    
+                    ->where_in('shift_id', $shift_data_array)->group_by($groupBy);
+            $records = $this->db->get('rpt_sales')->result_array();
+        
+
+           // $data = array('records' => $records);
+        }
+//var_dump($others);exit();
+       // return array('type' => $type, 'data' => $data);
+         return  $records;
+    }
+
+      function formatSalesData($recs) {
+        unset($fuel_centres);
+
+        $type = $this-> getProductCategories();
+
+    $lubes=[]; $others=[]; $fuel_centres=[]; $j_cards=[]; 
+        foreach ($recs as $rec) {
+          
+         
+             if($rec['category_id']==0){              
+              $fuel_centres[] = $rec;
+             }
+            if($rec['category_id']==1){              
+              $lubes[] = $rec;
+                 }
+        }
+
+         $data = array('lubes' => $lubes, 'others' => $others, 'fuel' => $fuel_centres, 'jc' => $j_cards);
+       
+        return array('type' => $type, 'data' => $data);
+    }
+
+        function getProductCategories() {
+            $this->db->select('tbl_products_category_type.type_id, name')->where('deleted', 0);
+           $type = $this->db->get('tbl_products_category_type')->result_array();
+             $jc_array = array('type_id' => "jc", 'name' => "Job Cards");
+            array_unshift($type, $jc_array);
+            $fuel_array = array('type_id' => 0, 'name' => "White Products");
+            array_unshift($type, $fuel_array);
+
+            return $type;
+
+          }
 
     function salesSummaryReport($post = NULL) {
         $shift_data_array = array();
