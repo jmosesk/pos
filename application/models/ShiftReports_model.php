@@ -740,7 +740,7 @@ if($recs){
             $salesdata[] = array(
              'close_shift_id'=>$r->close_shift_id,
              'shift_id'=>$r->shift_id,
-             'category_id'=>200,
+             'category_id'=>$val->category_id,
              'item_id'=>$r->item_id,
              'employee_id'=>$val1->employee_id,
              'centre_id'=>$r->centre_id,
@@ -785,7 +785,7 @@ if($recs){
             $salesdata[] = array(
              'close_shift_id'=>$r->close_shift_id,
              'shift_id'=>$r->shift_id,
-             'category_id'=>200,
+             'category_id'=>3,
              'item_id'=>$r->item_id,
              'employee_id'=>$val1->employee_id,
              'centre_id'=>$r->centre_id,
@@ -835,7 +835,7 @@ if($recs){
             $salesdata[] = array(
              'close_shift_id'=>$r->close_shift_fuel_id,
              'shift_id'=>$r->shift_id,
-             'category_id'=>100,
+             'category_id'=>0,
              'item_id'=>$val->fuel_product_id,
              'employee_id'=>$val1->employee_id,
              'centre_id'=>$r->centre_id,
@@ -872,7 +872,7 @@ function getsales_qty($r) {
                 $qty = $r->sales_elec_meter;
             }else{
                  if ($val->reading==2) {
-                  $qty = $r->sales_elec_cash;
+                  $qty = $r->sales_elec_cash/$r->unit_price;
                   }else{
                         if ($val->reading==1) {
                           $qty = max([$r->sales_manual_meter, $r->sales_elec_meter, $r->sales_elec_cash/$r->unit_price]);
@@ -1133,14 +1133,14 @@ function _insert($table, $set) {
         $this->db->select('tbl_products_category_type.type_id, name')->where('deleted', 0);
         $type = $this->db->get('tbl_products_category_type')->result_array();
         if (count($shift_data_array) > 0) {
-            $jc_array = array('type_id' => "jc", 'name' => "Job Cards");
-            array_unshift($type, $jc_array);
+         
             $fuel_array = array('type_id' => 0, 'name' => "White Products");
             array_unshift($type, $fuel_array);
             $this->db->order_by('tbl_items.item_name');
-            $this->db->select('SUM(sales_qty) as qty,SUM(sales_qty * measurement_value) as vol, SUM(sales_qty * price) as amnt, SUM(sales_qty * (price / (1+vat_rate))) as netamnt,  item_name, category_id, SUM((sales_qty * (price / (1+vat_rate))) * vat_rate) as vat')
+            $this->db->select('name,SUM(sales_qty) as qty,SUM(sales_qty * measurement_value) as vol, SUM(sales_qty * price) as amnt, SUM(sales_qty * (price / (1+vat_rate))) as netamnt,  item_name, category_id, SUM((sales_qty * (price / (1+vat_rate))) * vat_rate) as vat')
                    ->join('tbl_items', 'tbl_items.item_id = rpt_sales.item_id', 'left')                    
-                    ->where_in('shift_id', $shift_data_array)->group_by($groupBy);
+                   ->join('tbl_employees', 'tbl_employees.emp_id = rpt_sales.employee_id', 'left')                    
+                   ->where_in('shift_id', $shift_data_array)->group_by($groupBy);
             $records = $this->db->get('rpt_sales')->result_array();
         
 
@@ -1156,19 +1156,39 @@ function _insert($table, $set) {
 
         $type = $this-> getProductCategories();
 
-    $lubes=[]; $others=[]; $fuel_centres=[]; $j_cards=[]; 
-        foreach ($recs as $rec) {
-          
-         
-             if($rec['category_id']==0){              
+    $lubes=[]; $others=[]; $fuel_centres=[]; $j_cards=[]; $accessories=[];  $lpgs=[]; $filters=[]; 
+        foreach ($recs as $rec) {       
+            if($rec['category_id']==0){              
               $fuel_centres[] = $rec;
+             }else{
+                    if($rec['category_id']==1){              
+                  $lubes[] = $rec;
+                     }else{
+                        if($rec['category_id']==3){              
+                         $j_cards[] = $rec;
+                        }else{
+                            if($rec['category_id']==2){              
+                                 $lpgs[] = $rec;
+                                }else{
+                                    if($rec['category_id']==6){              
+                                     $filters[] = $rec;
+                                     }else{
+                                      $accessories[] = $rec;
+                                    }
+                                 }
+                   
+                        }
+
+                     }
+
              }
-            if($rec['category_id']==1){              
-              $lubes[] = $rec;
-                 }
+
+
+           
+   
         }
 
-         $data = array('lubes' => $lubes, 'others' => $others, 'fuel' => $fuel_centres, 'jc' => $j_cards);
+         $data = array('lubes' => $lubes, 'filters' => $filters, 'lpgs' => $lpgs, 'fuel' => $fuel_centres, 'jc' => $j_cards, 'accessories' => $accessories);
        
         return array('type' => $type, 'data' => $data);
     }
@@ -1176,10 +1196,9 @@ function _insert($table, $set) {
         function getProductCategories() {
             $this->db->select('tbl_products_category_type.type_id, name')->where('deleted', 0);
            $type = $this->db->get('tbl_products_category_type')->result_array();
-             $jc_array = array('type_id' => "jc", 'name' => "Job Cards");
-            array_unshift($type, $jc_array);
-            $fuel_array = array('type_id' => 0, 'name' => "White Products");
+           $fuel_array = array('type_id' => 0, 'name' => "White Products");
             array_unshift($type, $fuel_array);
+         
 
             return $type;
 

@@ -56,7 +56,7 @@
             type: 'POST',
             data: {range: range, shift: $("#shift").val()},
             success: function (response) {
-               // console.log(response);
+                //console.log(response);
                 $('#salesTable').empty();
                 var results = JSON.parse(response);
                 var categories = results.type;
@@ -78,33 +78,6 @@
                     var sum_zero_amnt = 0;
                     trHTML += open_draw_table(item.name);
                     if (Object.keys(data_response).length > 0) {
-                        $.each(data_response.lubes, function (j, lubes) {
-                            if (item.type_id == lubes.category_id) {
-                                sum_vol += parseFloat(lubes.vol);
-                                sum_amnt += parseFloat(lubes.amnt);
-                                sum_netamnt += parseFloat(lubes.netamnt);
-                                sum_vat_amnt += parseFloat(lubes.vat);
-                                trHTML += draw_fuel_center(lubes);
-                            }
-                        });
-                        $.each(data_response.others, function (j, others) {
-                            if (item.type_id == others.category_id) {
-                                sum_vol += parseFloat(others.vol);
-                                sum_amnt += parseFloat(others.amnt);
-                                sum_netamnt += parseFloat(others.netamnt);
-                                sum_vat_amnt += parseFloat(others.vat);
-                                trHTML += draw_fuel_center(others);
-                            }
-                        });
-                        $.each(data_response.accessoriess, function (j, accessories) {
-                            if (item.type_id == accessories.category_id) {
-                                sum_vol += parseFloat(accessories.vol);
-                                sum_amnt += parseFloat(accessories.amnt);
-                                sum_netamnt += parseFloat(accessories.netamnt);
-                                sum_vat_amnt += parseFloat(accessories.vat);
-                                trHTML += draw_fuel_center(accessories);
-                            }
-                        });
                         $.each(data_response.fuel, function (j, fuel) {
                             if (item.type_id == fuel.category_id) {
                                 sum_vol += parseFloat(fuel.vol);
@@ -114,15 +87,59 @@
                                 trHTML += draw_fuel_center(fuel);
                             }
                         });
-                        $.each(data_response.jc, function (j, fuel) {
-                            if (item.type_id == fuel.category_id) {
-                                sum_vol += parseFloat(fuel.vol);
-                                sum_amnt += parseFloat(fuel.amnt);
-                                sum_netamnt += parseFloat(fuel.netamnt);
-                                sum_vat_amnt += parseFloat(fuel.vat);
-                                trHTML += draw_fuel_center(fuel);
+                        $.each(data_response.lubes, function (j, lubes) {
+                            if (item.type_id == lubes.category_id) {
+                                sum_vol += parseFloat(lubes.vol);
+                                sum_amnt += parseFloat(lubes.amnt);
+                                sum_netamnt += parseFloat(lubes.netamnt);
+                                sum_vat_amnt += parseFloat(lubes.vat);
+                                trHTML += draw_fuel_center(lubes);
                             }
                         });
+                        //  $.each(data_response.jc, function (j, fuel) {
+                        //     if (item.type_id == fuel.category_id) {
+                        //         sum_qty += parseFloat(fuel.qty);
+                        //         sum_vol += parseFloat(fuel.vol);
+                        //         sum_amnt += parseFloat(fuel.amnt);
+                        //         sum_netamnt += parseFloat(fuel.netamnt);
+                        //         sum_vat_amnt += parseFloat(fuel.vat);
+                        //         trHTML += draw_fuel_center(fuel);
+                        //     }
+                        // });
+                        //  $.each(data_response.lpgs, function (j, lpgs) {
+                        //     //alert(lpgs.qty)
+                        //          if (item.type_id == lpgs.category_id) {
+                        //       //  sum_qty += parseFloat(lpgs.qty);
+                        //         sum_vol += parseFloat(lpgs.vol);
+                        //         sum_amnt += parseFloat(lpgs.amnt);
+                        //         sum_netamnt += parseFloat(lpgs.netamnt);
+                        //         sum_vat_amnt += parseFloat(lpgs.vat);
+                        //         trHTML += draw_fuel_center(lpgs);
+                        //        }
+                        // });  
+                        // $.each(data_response.filters, function (j, filters) {
+                        //             if (item.type_id == filters.category_id) {
+                        //               //  sum_qty += parseFloat(filters.qty);
+                        //                 sum_vol += parseFloat(filters.vol);
+                        //                 sum_amnt += parseFloat(filters.amnt);
+                        //                 sum_netamnt += parseFloat(filters.netamnt);
+                        //                 sum_vat_amnt += parseFloat(filters.vat);
+                        //                 trHTML += draw_fuel_center(filters);
+                        //             }
+                        //         });
+                        //  $.each(data_response.accessories, function (j, accessories) {
+                        //      if (item.type_id == accessories.category_id) {
+                        //                 // sum_qty += parseFloat(accessories.qty);
+                        //                  sum_vol += parseFloat(accessories.vol);
+                        //                  sum_amnt += parseFloat(accessories.amnt);
+                        //                  sum_netamnt += parseFloat(accessories.netamnt);
+                        //                  sum_vat_amnt += parseFloat(accessories.vat);
+                        //         trHTML += draw_fuel_center(accessories);
+                        //      }
+                        // });
+
+                       
+                       
                         g_sum_vol += parseFloat(sum_vol);
                         g_sum_amnt += parseFloat(sum_amnt);
                         g_sum_netamnt += parseFloat(sum_netamnt);

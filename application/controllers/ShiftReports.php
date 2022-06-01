@@ -203,7 +203,14 @@ class ShiftReports extends MY_Controller {
     public function employee_sales_report($shift_id = NULL) {
         if ($this->session->userdata('logged_in')) {
             if (count($this->input->post()) > 0) {
-                echo json_encode($this->ShiftReports_model->employee_sales_report($this->input->post()));
+                //echo json_encode($this->ShiftReports_model->employee_sales_report($this->input->post()));
+
+                $data =  $this->ShiftReports_model->getSalesReport($this->input->post(),'rpt_sales.employee_id,category_id');
+
+              //  var_dump($data);exit();
+                $data1 =  $this->ShiftReports_model->formatSalesData($data);
+                echo json_encode($data1);
+
             } else {
                 $this->load->view('includes/header');
                 $this->load->view('includes/load_picker_filter');
@@ -222,7 +229,7 @@ class ShiftReports extends MY_Controller {
             // $this->ShiftReports_model->save_rpt_sales();
             if (count($this->input->post()) > 0) {
                $data =  $this->ShiftReports_model->getSalesReport($this->input->post(),'tbl_items.item_id');
-             //  var_dump($data);exit();
+                   // var_dump($data);exit();
                $data1 =  $this->ShiftReports_model->formatSalesData($data);
                 echo json_encode($data1);
             } else {
