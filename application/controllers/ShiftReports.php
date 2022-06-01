@@ -205,7 +205,7 @@ class ShiftReports extends MY_Controller {
             if (count($this->input->post()) > 0) {
                 //echo json_encode($this->ShiftReports_model->employee_sales_report($this->input->post()));
 
-                $data =  $this->ShiftReports_model->getSalesReport($this->input->post(),'rpt_sales.employee_id,category_id');
+                $data =  $this->ShiftReports_model->getSalesReport($this->input->post(),'rpt_sales.employee_id');
 
               //  var_dump($data);exit();
                 $data1 =  $this->ShiftReports_model->formatSalesData($data);
